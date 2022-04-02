@@ -2,23 +2,37 @@
 #include "ft_printf.h"
 #include "unistd.h"
 
-void    receive_sig(int sig)
+unsigned char   ch = 0U;
+unsigned char   counter = 1U;
+
+void    disp(int signo)
 {
-    if (sig == SIGUSR1)
+    if (signo == SIGUSR2)
     {
-        ft_printf("Received SIGUSR1!\n");
+        ft_printf("counter=%d ch=%d\n", counter, ch);
+        ch += counter;
+        counter = counter << 1U;
     }
-    else if (sig == SIGUSR2)
+    if (signo == SIGUSR1)
     {
-        ft_printf("Received SIGUSR2!\n");
+        ft_printf("counter=%d ch=%d\n", counter, ch);
+        counter = counter << 1U;
     }
 }
 
 int main()
 {
     ft_printf("%d\n", getpid());
-    signal(SIGUSR1, receive_sig);
+    signal(SIGUSR2, disp); // 1
+    signal(SIGUSR1, disp); // 0
     while (1)
-        ;
+    {
+        if (counter == 128)
+        {
+            write(1, &ch,1);
+            ch = 0U;
+            counter = 1U;
+        }
+    }
     return (0);
 }
