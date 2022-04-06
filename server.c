@@ -3,73 +3,57 @@
 #include "libft/libft.h"
 #include "ft_printf.h"
 
-unsigned char    ch = 0;
-int     counter = 1;
+unsigned char    g_counter = 1;
 
-void    one(int sig, siginfo_t *info, void *ucontext)
+void    disp(int sig, siginfo_t *info, void *ucontext)
 {
-    ft_printf("counter=%d ch=%d\n", counter, ch);
+    static pid_t prev_pid;
+    static unsigned char    ch;
 
-    (void)sig;
     (void)ucontext;
-    ch |= counter;
-    counter = counter << 1;
-    if (counter == 128)
+
+    if (g_counter == 128)
     {
         write(1, &ch,1);
-        ch = 0;
-        counter = 1;
-        ft_printf("Client's PID: %d\n", info->si_pid);
-        if (kill(info->si_pid, 0))
-            kill(info->si_pid, SIGUSR1);
-        else
-            ft_printf("There is no client with such PID\n");
+        ch = 0U;
+        g_counter = 1U;
     }
-}
-
-void    zero(int sig, siginfo_t *info, void *ucontext)
-{
-    ft_printf("counter=%d ch=%d\n", counter, ch);
-
-    (void)sig;
-    (void)ucontext;
-    counter = counter << 1;
-    if (counter == 128)
+    if (info->si_pid != 0)
+        prev_pid = info->si_pid;
+    if (sig == SIGUSR2)
     {
-        write(1, &ch,1);
-        ch = 0;
-        counter = 1;
-        ft_printf("Client's PID: %d\n", info->si_pid);
-        if (kill(info->si_pid, 0))
-            kill(info->si_pid, SIGUSR1);
-        else
-            ft_printf("There is no client with such PID\n");
+        ch |= g_counter;
+        g_counter = g_counter << 1;
+        ft_printf("g_counter==%d SIGUSR2\n", g_counter);
     }
+    else
+    {
+        g_counter = g_counter << 1;
+        ft_printf("g_counter==%d SIGUSR1\n", g_counter);
+    }
+    usleep(200);
+    if (kill(prev_pid, SIGUSR1) == -1)
+        return;
 }
 
 int main()
 {
-    struct sigaction    act0;
-    struct sigaction    act1;
+    struct sigaction    act;
     sigset_t    sigset;
 
+    ft_memset(&act, 0, sizeof(act));
     sigemptyset(&sigset);
-    ft_memset(&act0, 0, sizeof(act0));
-    ft_memset(&act1, 0, sizeof(act1));
-
-    act0.sa_flags = SIGINFO;
-    act0.sa_sigaction = one;
-    sigaddset(&act0.sa_mask, SIGUSR1);
-    sigaction(SIGUSR1, &act0, (void *) 0); // 0
-
-    act1.sa_flags = SIGINFO;
-    act1.sa_sigaction = zero;
-    sigaddset(&act1.sa_mask, SIGUSR2);
-    sigaction(SIGUSR2, &act1, (void *) 0); // 1
+    sigaddset(&act.sa_mask, SIGUSR2);
+    sigaddset(&act.sa_mask, SIGUSR1);
+    act.sa_mask = sigset;
+    act.sa_flags = SIGINFO;
+    act.sa_sigaction = disp;
+    sigaction(SIGUSR2, &act, (void *) 0); // 1
+    sigaction(SIGUSR1, &act, (void *) 0); // 0
 
     ft_printf("Server's PID: %d\n", getpid());
 
     while (1)
-        ;
+        pause();
     return (0);
 }

@@ -4,12 +4,10 @@
 
 int g_notification;
 
-void    answer(int sig, siginfo_t *info, void *ucontext)
+void    answer(int sig)
 {
     (void)sig;
-    (void)info;
-    (void)ucontext;
-    ft_printf("\n");
+    ft_printf("message delivered\n");
     g_notification = 1;
 }
 
@@ -22,9 +20,9 @@ void    send_str(pid_t pid, char *str)
     while (str[i])
     {
         k = 0;
-        g_notification = 0;
         while (k < (int)(sizeof(int) * 2))
         {
+            g_notification = 0;
             if ((unsigned char)str[i] & (1 << k))
             {
                 kill(pid, SIGUSR2); // 1
@@ -35,6 +33,7 @@ void    send_str(pid_t pid, char *str)
             }
             while (g_notification != 1)
                 ;
+            usleep(200);
             k++;
         }
         i++;
@@ -47,11 +46,11 @@ int main(int argc, char *argv[])
     struct sigaction    act;
     sigset_t    sigset;
 
-    sigemptyset(&sigset);
     ft_memset(&act, 0, sizeof(act));
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = SIGINFO;
-    act.sa_sigaction = answer;
+    sigemptyset(&sigset);
+    sigaddset(&act.sa_mask, SIGUSR1);
+    act.sa_mask = sigset;
+    act.sa_handler = answer;
     sigaction(SIGUSR1, &act, (void *) 0);
 
     if (argc == 3)
@@ -65,6 +64,5 @@ int main(int argc, char *argv[])
     }
     else
         ft_printf("server's PID &/or string to send is missing\n");
-    sleep(10);
     return (0);
 }
