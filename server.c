@@ -20,8 +20,10 @@ void    one(int sig, siginfo_t *info, void *ucontext)
         ch = 0;
         counter = 1;
         ft_printf("Client's PID: %d\n", info->si_pid);
-        usleep(100);
-        kill(info->si_pid, SIGUSR1);
+        if (kill(info->si_pid, 0))
+            kill(info->si_pid, SIGUSR1);
+        else
+            ft_printf("There is no client with such PID\n");
     }
 }
 
@@ -38,8 +40,10 @@ void    zero(int sig, siginfo_t *info, void *ucontext)
         ch = 0;
         counter = 1;
         ft_printf("Client's PID: %d\n", info->si_pid);
-        usleep(100);
-        kill(info->si_pid, SIGUSR1);
+        if (kill(info->si_pid, 0))
+            kill(info->si_pid, SIGUSR1);
+        else
+            ft_printf("There is no client with such PID\n");
     }
 }
 

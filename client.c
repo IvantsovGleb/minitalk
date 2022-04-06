@@ -2,10 +2,15 @@
 #include "libft/libft.h"
 #include "ft_printf.h"
 
-void    answer(int sig)
+int g_notification;
+
+void    answer(int sig, siginfo_t *info, void *ucontext)
 {
     (void)sig;
+    (void)info;
+    (void)ucontext;
     ft_printf("\n");
+    g_notification = 1;
 }
 
 void    send_str(pid_t pid, char *str)
@@ -17,6 +22,7 @@ void    send_str(pid_t pid, char *str)
     while (str[i])
     {
         k = 0;
+        g_notification = 0;
         while (k < (int)(sizeof(int) * 2))
         {
             if ((unsigned char)str[i] & (1 << k))
@@ -27,7 +33,8 @@ void    send_str(pid_t pid, char *str)
             {
                 kill(pid, SIGUSR1); // 0
             }
-            usleep(100);
+            while (g_notification != 1)
+                ;
             k++;
         }
         i++;
@@ -37,8 +44,16 @@ void    send_str(pid_t pid, char *str)
 int main(int argc, char *argv[])
 {
     pid_t   pid;
+    struct sigaction    act;
+    sigset_t    sigset;
 
-    signal(SIGUSR1, answer);
+    sigemptyset(&sigset);
+    ft_memset(&act, 0, sizeof(act));
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = SIGINFO;
+    act.sa_sigaction = answer;
+    sigaction(SIGUSR1, &act, (void *) 0);
+
     if (argc == 3)
     {
         pid = ft_atoi(argv[1]);
