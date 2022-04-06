@@ -1,38 +1,71 @@
+#include <unistd.h>
+#include <signal.h>
 #include "libft/libft.h"
 #include "ft_printf.h"
-#include "unistd.h"
 
-unsigned char   ch = 0U;
-unsigned char   counter = 1U;
+unsigned char    ch = 0;
+int     counter = 1;
 
-void    disp(int signo)
+void    one(int sig, siginfo_t *info, void *ucontext)
 {
-    if (signo == SIGUSR2)
+    ft_printf("counter=%d ch=%d\n", counter, ch);
+
+    (void)sig;
+    (void)ucontext;
+    ch |= counter;
+    counter = counter << 1;
+    if (counter == 128)
     {
-        ft_printf("counter=%d ch=%d\n", counter, ch);
-        ch += counter;
-        counter = counter << 1U;
+        write(1, &ch,1);
+        ch = 0;
+        counter = 1;
+        ft_printf("Client's PID: %d\n", info->si_pid);
+        usleep(100);
+        kill(info->si_pid, SIGUSR1);
     }
-    if (signo == SIGUSR1)
+}
+
+void    zero(int sig, siginfo_t *info, void *ucontext)
+{
+    ft_printf("counter=%d ch=%d\n", counter, ch);
+
+    (void)sig;
+    (void)ucontext;
+    counter = counter << 1;
+    if (counter == 128)
     {
-        ft_printf("counter=%d ch=%d\n", counter, ch);
-        counter = counter << 1U;
+        write(1, &ch,1);
+        ch = 0;
+        counter = 1;
+        ft_printf("Client's PID: %d\n", info->si_pid);
+        usleep(100);
+        kill(info->si_pid, SIGUSR1);
     }
 }
 
 int main()
 {
-    ft_printf("%d\n", getpid());
-    signal(SIGUSR2, disp); // 1
-    signal(SIGUSR1, disp); // 0
+    struct sigaction    act0;
+    struct sigaction    act1;
+    sigset_t    sigset;
+
+    sigemptyset(&sigset);
+    ft_memset(&act0, 0, sizeof(act0));
+    ft_memset(&act1, 0, sizeof(act1));
+
+    act0.sa_flags = SIGINFO;
+    act0.sa_sigaction = one;
+    sigaddset(&act0.sa_mask, SIGUSR1);
+    sigaction(SIGUSR1, &act0, (void *) 0); // 0
+
+    act1.sa_flags = SIGINFO;
+    act1.sa_sigaction = zero;
+    sigaddset(&act1.sa_mask, SIGUSR2);
+    sigaction(SIGUSR2, &act1, (void *) 0); // 1
+
+    ft_printf("Server's PID: %d\n", getpid());
+
     while (1)
-    {
-        if (counter == 128)
-        {
-            write(1, &ch,1);
-            ch = 0U;
-            counter = 1U;
-        }
-    }
+        ;
     return (0);
 }
