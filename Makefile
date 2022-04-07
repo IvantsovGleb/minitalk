@@ -11,7 +11,7 @@ src_server	= ft_*.c server.c
 src_client	= ft_*.c parse.c client.c
 
 
-all bonus: $(SERVER) $(CLIENT)
+all: $(SERVER) $(CLIENT)
 
 libft/libft.a: $(wildcard libft/*.o)
 			$(MAKE) -C libft/
@@ -33,4 +33,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re bonus
+.PHONY: all clean fclean re
