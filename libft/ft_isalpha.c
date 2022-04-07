@@ -6,7 +6,7 @@
 /*   By: fsinestr <fsinestr@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 14:36:45 by fsinestr          #+#    #+#             */
-/*   Updated: 2021/10/25 14:48:29 by fsinestr         ###   ########.fr       */
+/*   Updated: 2022/04/07 17:00:38 by fsinestr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 int	ft_isalpha(int c)
 {
-	if ((c >= 'a' && c <= 'z')
-		|| (c >= 'A' && c <= 'Z'))
-		return (1);
-	return (0);
+	return ((c >= 'a' && c <= 'z')
+		|| (c >= 'A' && c <= 'Z'));
 }

@@ -1,18 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_isprint.c                                       :+:      :+:    :+:   */
+/*   parse.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsinestr <fsinestr@student.21-school.ru>   +#+  +:+       +#+        */
+/*   By: fsinestr <fsinestr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/25 14:36:45 by fsinestr          #+#    #+#             */
-/*   Updated: 2021/10/25 14:48:29 by fsinestr         ###   ########.fr       */
+/*   Created: 2022/04/07 19:32:10 by fsinestr          #+#    #+#             */
+/*   Updated: 2022/04/07 19:32:27 by fsinestr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#ifndef PARSE_H
+# define PARSE_H
 
-int	ft_isprint(int c)
+# include <limits.h>
+
+typedef struct s_number
 {
-	return (c >= 32 && c <= 126);
-}
+	unsigned long	nbr;
+	int				sign;
+}					t_number;
+
+int	parse_int(const char *s, int *i);
+
+#endif

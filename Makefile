@@ -1,35 +1,34 @@
-cflags = -Wall -Werror -Wextra
+cflags		= -Wall -Werror -Wextra
 
-rm = rm -rf
+rm			= rm -rf
 
-SERVER = server
+SERVER		= server
 
-CLIENT = client
+CLIENT		= client
 
-src_server = libft/ft_*.c ft_*.c server.c
+src_server	= libft/ft_*.c ft_*.c server.c
 
-src_client = libft/ft_*.c ft_*.c client.c
+src_client	= libft/ft_*.c ft_*.c parse.c client.c
 
 
 all: $(SERVER) $(CLIENT)
 
 $(ALL): $(SERVER) $(CLIENT)
 			$(MAKE) -C libft/
-			#$(MAKE) bonus -C libft/
 
 $(SERVER): $(src_server) ft_printf.h
 			$(CC) $(cflags) $(src_server) -o $(SERVER)
 
-$(CLIENT): $(src_client) ft_printf.h
+$(CLIENT): $(src_client) ft_printf.h parse.h
 			$(CC) $(cflags) $(src_client) -o $(CLIENT)
 
 clean:
-	$(MAKE) clean -C libft/
+			$(MAKE) clean -C libft/
 
 fclean: clean
-	$(MAKE) fclean -C libft/
-	$(rm) $(SERVER)
-	$(rm) $(CLIENT)
+			$(MAKE) fclean -C libft/
+			$(rm) $(SERVER)
+			$(rm) $(CLIENT)
 
 re: fclean all
 

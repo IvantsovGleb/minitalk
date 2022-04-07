@@ -21,4 +21,5 @@ size_t	ft_putstr(char *s);
 char	*ft_address(void *address, char *buffer);
 
 int		ft_printf(const char *format, ...);
+
 #endif
